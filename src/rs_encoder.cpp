@@ -7,7 +7,7 @@ ReedSolomonEncoder::ReedSolomonEncoder(std::shared_ptr<rs_code_t> rs_code){
     gf =  new galois::GaloisField(rs_code->power, 
                                   rs_code->prime_poly);
     alpha = galois::GaloisFieldElement(gf, 2);
-    g_x = get_generator();
+    g_x = rs_code->get_generator(gf);
 }
 
 ReedSolomonEncoder::~ReedSolomonEncoder(){
@@ -33,27 +33,6 @@ galois::GaloisFieldPolynomial ReedSolomonEncoder::encode(std::string data){
 
     return enc_data;
 }
-
-galois::GaloisFieldPolynomial ReedSolomonEncoder::get_generator(){
-
-    auto size = rs_code->tt;
-    galois::GaloisFieldPolynomial g_x(gf, size);
-    g_x[0] = 1;
-
-    galois::GaloisFieldElement alpha_vector[2] = { galois::GaloisFieldElement(gf, 1),
-                                                   galois::GaloisFieldElement(gf, 1) };
-
-    for(auto i=0; i < size; ++i){
-        alpha_vector[0] = alpha ^ (i+1);
-        galois::GaloisFieldPolynomial alpha_polynomial(gf, 1, alpha_vector);
-        g_x = g_x * alpha_polynomial;
-    }
-
-    // std::cout << "g(x) = " << g_x << std::endl;
-
-    return g_x;
-}
-
 galois::GaloisFieldPolynomial ReedSolomonEncoder::string_to_poly(std::string data){
     
     galois::GaloisFieldPolynomial message(gf, rs_code->n);
@@ -63,8 +42,4 @@ galois::GaloisFieldPolynomial ReedSolomonEncoder::string_to_poly(std::string dat
     }
 
     return message;
-}
-
-int ReedSolomonEncoder::get_data_block_size(){
-    return rs_code->k;
 }

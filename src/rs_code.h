@@ -28,4 +28,26 @@ struct rs_code_t {
                 return nullptr;
         }
     }
+
+    galois::GaloisFieldPolynomial get_generator(galois::GaloisField * gf){
+
+        auto size = this->tt;
+        galois::GaloisFieldElement alpha(gf, 2);
+        galois::GaloisFieldPolynomial g_x(gf, size);
+        g_x[0] = 1;
+
+        galois::GaloisFieldElement alpha_vector[2] = { galois::GaloisFieldElement(gf, 1),
+                                                       galois::GaloisFieldElement(gf, 1) };
+
+        for(auto i=0; i < size; ++i){
+            alpha_vector[0] = alpha ^ (i+1);
+            galois::GaloisFieldPolynomial alpha_polynomial(gf, 1, alpha_vector);
+            g_x = g_x * alpha_polynomial;
+        }
+
+        // std::cout << "g(x) = " << g_x << std::endl;
+
+        return g_x;
+    }
+
 };
