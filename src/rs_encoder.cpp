@@ -1,17 +1,12 @@
 #include "rs_encoder.h"
 
-ReedSolomonEncoder::ReedSolomonEncoder(const int power,
-                                       unsigned int * prime_polynomial)
-: power(power)
-{
+ReedSolomonEncoder::ReedSolomonEncoder(std::shared_ptr<rs_code_t> rs_code){
 
-    if(!prime_polynomial){
-        prime_polynomial = default_prime_polynomial;
-    }
+    this->rs_code = rs_code;
 
-    gf =  new galois::GaloisField(power, prime_polynomial);
+    gf =  new galois::GaloisField(rs_code->power, 
+                                  rs_code->prime_poly);
     alpha = galois::GaloisFieldElement(gf, 2);
-    rs_code = std::make_unique<rs_code_t>();
     g_x = get_generator();
 }
 
