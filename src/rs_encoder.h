@@ -10,13 +10,15 @@ struct rs_code_t {
     int n = 36; // degree: q - 1
     int t = 6;  // t-error correcting code
     int k = 24; // for rs k = 2 * t
+    int tt = 12;
 
     rs_code_t(int n=36, int t=6)
     : n(n)
     , t(t)
     {
         this->q = n + 1;
-        this->k = n - 2 * t; 
+        this->tt = 2 * t;
+        this->k = n - tt;       
     }
 };
 
@@ -25,12 +27,15 @@ class ReedSolomonEncoder {
     public:
         ReedSolomonEncoder(const int power=8, unsigned int * prime_polynomial=nullptr);
         ~ReedSolomonEncoder();
+        galois::GaloisFieldPolynomial encode(std::string data);
+        int get_data_block_size();
     private:
         galois::GaloisFieldPolynomial conv(galois::GaloisFieldPolynomial x, 
                                            const int nf,
                                            galois::GaloisFieldPolynomial y,
                                            const int ng);
         galois::GaloisFieldPolynomial get_generator();
+        galois::GaloisFieldPolynomial string_to_poly(std::string data);
         const int power;
         galois::GaloisFieldPolynomial g_x;
         galois::GaloisField * gf;

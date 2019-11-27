@@ -19,9 +19,29 @@ ReedSolomonEncoder::~ReedSolomonEncoder(){
     delete gf;
 }
 
+// systematic encoder
+galois::GaloisFieldPolynomial ReedSolomonEncoder::encode(std::string data){
+
+    // convert to poly
+    galois::GaloisFieldPolynomial enc_data = string_to_poly(data);
+
+    // multiple with x^(n-k) = x^tt
+    galois::GaloisFieldPolynomial x_tt(gf, rs_code->tt);
+    x_tt[rs_code->tt] = 1;
+    enc_data = enc_data * x_tt;
+
+    // calculate the remainder of enc_data / g_x
+    galois::GaloisFieldPolynomial r_x = enc_data % g_x;
+
+    // the resulting code word is equal to enc_data + rx
+    enc_data = enc_data + r_x;
+
+    return enc_data;
+}
+
 galois::GaloisFieldPolynomial ReedSolomonEncoder::get_generator(){
 
-    auto size = 2 * rs_code->t;
+    auto size = rs_code->tt;
     galois::GaloisFieldPolynomial g_x(gf, size);
     g_x[0] = 1;
 
@@ -34,7 +54,22 @@ galois::GaloisFieldPolynomial ReedSolomonEncoder::get_generator(){
         g_x = g_x * alpha_polynomial;
     }
 
-    std::cout << "g(x)  = " << g_x              << std::endl;
+    // std::cout << "g(x) = " << g_x << std::endl;
 
     return g_x;
+}
+
+galois::GaloisFieldPolynomial ReedSolomonEncoder::string_to_poly(std::string data){
+    
+    galois::GaloisFieldPolynomial message(gf, rs_code->n);
+
+    for(int i = 0; i < rs_code->k; ++i){
+        message[i] = data[rs_code->k - i - 1];
+    }
+
+    return message;
+}
+
+int ReedSolomonEncoder::get_data_block_size(){
+    return rs_code->k;
 }
