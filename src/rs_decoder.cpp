@@ -67,16 +67,6 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_syndrome(galois::GaloisFi
         helper_2 = vector_product(helper_2, helper_1);
     }
 
-    // galois::GaloisFieldElement _alpha;
-    // for(int i=0; i < rs_code->tt; i++){
-    //     syndrome[i] = 0;
-    //     for(int j=0; j < r_x.deg() + 1; j++){
-    //         _alpha = ((*alpha)^(i+rs_code->m0)) ^ j;
-    //         syndrome[i] += (r_x[j] * _alpha);
-    //     }
-    //     std::cout << std::endl;
-    // }
-
     syndrome.simplify();
 
     return syndrome;
@@ -93,16 +83,16 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_lambda_vector(galois::Gal
     lambda_current[0] = 1;
     omega_prev[rs_code->tt] = 1;
 
+    // std::cout << "lambda_prev: " << lambda_prev << std::endl;
+    // std::cout << "lambda_current: " << lambda_current << std::endl;
+    // std::cout << "omega_prev: " << omega_prev << std::endl;
+    // std::cout << "omega_current: " << omega_current << std::endl;
+    // std::cout << std::endl;
+
      while(omega_current.deg() > rs_code->t){
-
-        // std::cout << "lambda_prev: " << lambda_prev << std::endl;
-        // std::cout << "lambda_current: " << lambda_current << std::endl;
-        // std::cout << "omega_prev: " << omega_prev << std::endl;
-        // std::cout << "omega_current: " << omega_current << std::endl;
-        // std::cout << std::endl;
-
         // calc new omega
         q = omega_prev / omega_current;
+        
         tmp = omega_prev - (q * omega_current);
         omega_prev = omega_current;
         omega_current = tmp;
@@ -111,11 +101,21 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_lambda_vector(galois::Gal
         tmp = lambda_prev - (q * lambda_current);
         lambda_prev = lambda_current;
         lambda_current = tmp;
+
+        // std::cout << "q: " << q << std::endl;
+        // std::cout << "lambda_prev: " << lambda_prev << std::endl;
+        // std::cout << "lambda_current: " << lambda_current << std::endl;
+        // std::cout << "omega_prev: " << omega_prev << std::endl;
+        // std::cout << "omega_current: " << omega_current << std::endl;
+        // std::cout << std::endl;
     }
 
     // final lambda_current needs to be used further
     // make last term 1 so E_vector[0] = 0 
-    lambda_current = lambda_current * (*alpha * (rs_code->q_m - 1 - lambda_current[0].index()));
+    auto scale_factor = lambda_current[0].index();
+    for(int i=0; i < lambda_current.deg()+1; i++){
+        lambda_current[i] *= (*alpha)^(-scale_factor);
+    }
 
     return lambda_current;
 }
@@ -135,6 +135,22 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_error_vector(galois::Galo
         for(int j=0; j < lambda_vector.deg(); j++){
             E_vector[i] += lambda_vector[j+1] * E_vector[i-j-1];
         }
+    }
+
+    // only the values for E smaller than rs_code->m0 need to be found
+    // for reed solomon m0 = 1 so only E[0] remains to be found
+    galois::GaloisFieldPolynomial helper(gf.get(), lambda_vector.deg()-1);
+    auto scale_factor = lambda_vector[lambda_vector.deg()].index();
+    for(int j=0; j < lambda_vector.deg(); j++){
+        helper[j] = lambda_vector[j] / ((*alpha)^scale_factor);
+    }
+
+    for(int i=0; i < rs_code->m0; i++){
+        E_vector[i] = 0;
+        for(int j=0; j < helper.deg()+1; j++){
+            E_vector[i] += helper[j] * E_vector[lambda_vector.deg() - j];
+        }
+
     }
 
     return E_vector;
@@ -172,7 +188,7 @@ std::string ReedSolomonDecoder::_decode(galois::GaloisFieldPolynomial r_x){
         // correct r_x with e_vector
         c_x = r_x + e_vector;
         c_x.set_degree(rs_code->n + 1);
-        std::cout << "c_x: " << c_x << std::endl;
+        // std::cout << "c_x: " << c_x << std::endl;
     } else {
         // std::cout << "not valid!" << std::endl;
     }

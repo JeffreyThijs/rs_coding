@@ -11,10 +11,15 @@ int main(){
     std::string decoded_message = "";
     std::string enc_data;
 
+    std::cout << "original message = " << data << std::endl;
     encoder->encode(data, enc_data);
+
+    // introduce some errors
     enc_data[35] += 1;
+    enc_data[33] += 1;
+    enc_data[7] += 1;
+    enc_data[2] += 1;
     std::cout << "enc_data = " << enc_data << std::endl;
-    // enc_data[0] = enc_data[0] + galois::GaloisFieldElement(enc_data.field(), 2); 
 
     decoder->decode(enc_data, decoded_message);
     std::cout << "decoded_message: " << decoded_message << std::endl;
