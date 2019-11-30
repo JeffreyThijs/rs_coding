@@ -59,7 +59,7 @@ struct rs_code_t {
             g_x = g_x * alpha_polynomial;
         }
 
-        std::cout << "g(x) = " << g_x << std::endl;
+        // std::cout << "g(x) = " << g_x << std::endl;
 
         return g_x;
     }
