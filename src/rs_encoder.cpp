@@ -3,8 +3,8 @@
 ReedSolomonEncoder::ReedSolomonEncoder(std::shared_ptr<rs_code_t> rs_code){
 
     this->rs_code = rs_code;
-    this->gf = this->rs_code->gf;
-    this->alpha = this->rs_code->alpha;
+    this->gf = this->rs_code->gf.get();
+    this->alpha = *this->rs_code->alpha.get();
     g_x = rs_code->get_generator();
 }
 
@@ -17,7 +17,7 @@ galois::GaloisFieldPolynomial ReedSolomonEncoder::_encode(std::string data){
     galois::GaloisFieldPolynomial enc_data = string_to_poly(data);
 
     // multiple with x^(n-k) = x^tt
-    galois::GaloisFieldPolynomial x_tt(gf.get(), rs_code->tt);
+    galois::GaloisFieldPolynomial x_tt(gf, rs_code->tt);
     x_tt[rs_code->tt] = 1;
     enc_data = enc_data * x_tt;
 
@@ -40,7 +40,7 @@ void ReedSolomonEncoder::encode(std::string data, galois::GaloisFieldPolynomial&
 
 galois::GaloisFieldPolynomial ReedSolomonEncoder::string_to_poly(std::string data){
     
-    galois::GaloisFieldPolynomial message(gf.get(), rs_code->n - 1);
+    galois::GaloisFieldPolynomial message(gf, rs_code->n - 1);
 
     for(int i = 0; i < rs_code->k; ++i){
         message[i] = data[rs_code->k - i - 1];

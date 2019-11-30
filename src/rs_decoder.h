@@ -5,6 +5,7 @@
 #include "GaloisFieldElement.h"
 #include "GaloisFieldPolynomial.h"
 #include "rs_code.h"
+#include "helper_functions.h"
 
 class ReedSolomonDecoder {
 
@@ -22,7 +23,7 @@ class ReedSolomonDecoder {
         galois::GaloisFieldPolynomial calc_lambda_vector(galois::GaloisFieldPolynomial syndrome);
         galois::GaloisFieldPolynomial calc_error_vector(galois::GaloisFieldPolynomial syndrome,
                                                         galois::GaloisFieldPolynomial lambda_vector);
-        std::shared_ptr<galois::GaloisField> gf;
-        std::shared_ptr<galois::GaloisFieldElement> alpha;
         std::shared_ptr<rs_code_t> rs_code;
+        galois::GaloisField * gf;
+        galois::GaloisFieldElement alpha;
 };

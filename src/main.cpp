@@ -24,6 +24,5 @@ int main(){
     decoder->decode(enc_data, decoded_message);
     std::cout << "decoded_message: " << decoded_message << std::endl;
 
-    
     return 0;
 }
