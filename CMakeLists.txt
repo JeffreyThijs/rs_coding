@@ -6,7 +6,9 @@ include_directories(src/
                     galois/)
 
 file(GLOB SOURCES 
-     "src/*.cpp"
+     # "src/*.cpp"
+     "src/rs_*.cpp"
+     "tests/test_decoder.cpp"
      "galois/GaloisField.cpp"
      "galois/GaloisFieldElement.cpp"
      "galois/GaloisFieldPolynomial.cpp")

@@ -6,15 +6,14 @@
 #include "GaloisFieldPolynomial.h"
 #include "rs_code.h"
 
-class ReedSolomonEncoder {
+class ReedSolomonDecoder {
 
     public:
-        ReedSolomonEncoder(std::shared_ptr<rs_code_t> rs_code);
-        ~ReedSolomonEncoder();
-        galois::GaloisFieldPolynomial encode(std::string data);
+        ReedSolomonDecoder(std::shared_ptr<rs_code_t> rs_code);
+        ~ReedSolomonDecoder();
+        std::string decode(galois::GaloisFieldPolynomial enc_data);
     private:
-        galois::GaloisFieldPolynomial string_to_poly(std::string data);
-        galois::GaloisFieldPolynomial g_x;
+        std::string poly_to_string(galois::GaloisFieldPolynomial message);
         std::shared_ptr<galois::GaloisField> gf;
         std::shared_ptr<galois::GaloisFieldElement> alpha;
         std::shared_ptr<rs_code_t> rs_code;
