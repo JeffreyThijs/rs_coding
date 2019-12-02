@@ -59,3 +59,54 @@ std::string ReedSolomonEncoder::poly_to_string(galois::GaloisFieldPolynomial mes
 
     return data;
 }
+
+int ReedSolomonEncoder::read_from_file(std::string src, std::vector<std::string>& blocks){
+
+    int runs = 0;
+
+    std::ifstream src_file(src, std::ifstream::binary);
+    if (src_file) {
+        src_file.seekg(0, src_file.end);
+        int length = src_file.tellg();
+        src_file.seekg(0, src_file.beg);
+
+        runs = (int) ceil((float) length / (float) rs_code->k);
+        std::string block(rs_code->k, 0x0);
+    
+        for(int i=0; i < runs; i++){
+            src_file.read(&block.front(), rs_code->k);
+            blocks.push_back(block);
+            block.clear();
+            block.resize(rs_code->k);
+        }
+
+        src_file.close();
+
+    } else {
+        std::cout << "Could not open " << src << std::endl;
+    }
+
+    return runs;
+}
+
+void ReedSolomonEncoder::write_to_file(std::string dst, std::string blocks){
+    std::ofstream dst_file(dst, std::ifstream::binary);
+    dst_file << blocks;
+    dst_file.close();
+}
+
+void ReedSolomonEncoder::encode_file(std::string src, std::string dst){
+
+    std::vector<std::string> src_blocks;
+    int block_size = read_from_file(src, src_blocks);
+
+    std::string block(rs_code->n, 0x0);
+    std::string dst_blocks = "";
+    
+    for(int i=0; i < block_size; i++){
+        encode(src_blocks[i], block);
+        dst_blocks.append(block);
+    }
+
+    write_to_file(dst, dst_blocks);
+}

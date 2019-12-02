@@ -19,7 +19,7 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::idft(galois::GaloisFieldPolyno
         for(int j=0; j < rs_code->q_m - 1; j++){
             y[i] += x[j] * (alpha^(-j*i));
         }
-         y[i] /= scale_factor;
+        y[i] /= scale_factor;
     }
 
     return y;
@@ -131,7 +131,8 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_error_vector(galois::Galo
     return E_vector;
 }
 
-// systematic decoder
+// systematic frequency domain non-cyclic decoder using Shuhong Gao Algorithm:
+// http://www.math.clemson.edu/~sgao/papers/RS.pdf
 std::string ReedSolomonDecoder::_decode(galois::GaloisFieldPolynomial r_x){
 
     galois::GaloisFieldPolynomial c_x;

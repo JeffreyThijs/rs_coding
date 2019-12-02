@@ -12,6 +12,7 @@ int main(){
     std::string enc_data;
 
     std::cout << "original message = " << data << std::endl;
+    encoder->encode_file("test.ldf", "weee.ldf");
     encoder->encode(data, enc_data);
 
     // introduce some errors
