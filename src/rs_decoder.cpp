@@ -202,3 +202,62 @@ std::string ReedSolomonDecoder::poly_to_string(galois::GaloisFieldPolynomial mes
 
     return data;
 }
+
+int ReedSolomonDecoder::read_from_file(std::string src, std::vector<std::string>& blocks){
+
+    int runs = 0;
+
+    std::ifstream src_file(src, std::ifstream::binary);
+    if (src_file) {
+        src_file.seekg(0, src_file.end);
+        int length = src_file.tellg();
+        src_file.seekg(0, src_file.beg);
+
+        // assert file length is a multiple of the block lengt to ensure correct decoding
+        assert(length % rs_code->n == 0);
+
+        runs = length / rs_code->n;
+        std::string block(rs_code->n, 0x0);
+    
+        for(int i=0; i < runs; i++){
+            src_file.read(&block.front(), rs_code->n);
+            blocks.push_back(block);
+            block.clear();
+            block.resize(rs_code->n);
+        }
+
+        src_file.close();
+
+    } else {
+        std::cout << "Could not open " << src << std::endl;
+    }
+
+    return runs;
+}
+
+void ReedSolomonDecoder::write_to_file(std::string dst, std::string blocks){
+    std::ofstream dst_file(dst, std::ifstream::binary);
+    dst_file << blocks;
+    dst_file.close();
+}
+
+void ReedSolomonDecoder::decode_file(std::string src, std::string dst){
+
+    std::vector<std::string> src_blocks;
+    int block_size = read_from_file(src, src_blocks);
+
+    if(block_size == 0){
+        std::cout << "Decoding failed!" << std::endl;
+        return;
+    }
+
+    std::string block(rs_code->n, 0x0);
+    std::string dst_blocks = "";
+    
+    for(int i=0; i < block_size; i++){
+        decode(src_blocks[i], block);
+        dst_blocks.append(block);
+    }
+
+    write_to_file(dst, dst_blocks);
+}

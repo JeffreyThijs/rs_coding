@@ -1,6 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <assert.h>
 #include "GaloisField.h"
 #include "GaloisFieldElement.h"
 #include "GaloisFieldPolynomial.h"
@@ -14,8 +18,11 @@ class ReedSolomonDecoder {
         ~ReedSolomonDecoder();
         void decode(std::string r_x, std::string& c_x);
         void decode(galois::GaloisFieldPolynomial r_x, std::string& c_x);
+        void decode_file(std::string src, std::string dst);
     private:
         std::string _decode(galois::GaloisFieldPolynomial r_x);
+        int read_from_file(std::string src, std::vector<std::string>& blocks);
+        void write_to_file(std::string dst, std::string blocks);
         std::string poly_to_string(galois::GaloisFieldPolynomial message);
         galois::GaloisFieldPolynomial string_to_poly(std::string message);
         galois::GaloisFieldPolynomial idft(galois::GaloisFieldPolynomial x);

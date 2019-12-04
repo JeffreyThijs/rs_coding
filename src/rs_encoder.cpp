@@ -70,7 +70,7 @@ int ReedSolomonEncoder::read_from_file(std::string src, std::vector<std::string>
         int length = src_file.tellg();
         src_file.seekg(0, src_file.beg);
 
-        runs = (int) ceil((float) length / (float) rs_code->k);
+        runs = static_cast<int>(ceil(static_cast<float>(length) / static_cast<float>(rs_code->k)));
         std::string block(rs_code->k, 0x0);
     
         for(int i=0; i < runs; i++){
@@ -99,6 +99,11 @@ void ReedSolomonEncoder::encode_file(std::string src, std::string dst){
 
     std::vector<std::string> src_blocks;
     int block_size = read_from_file(src, src_blocks);
+
+    if(block_size == 0){
+        std::cout << "Encoding failed!" << std::endl;
+        return;
+    }
 
     std::string block(rs_code->n, 0x0);
     std::string dst_blocks = "";
