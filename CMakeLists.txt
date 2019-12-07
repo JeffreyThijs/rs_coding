@@ -27,5 +27,5 @@ file(GLOB TEST_SOURCES
      tests/*.cpp
 )
 
-add_executable (tests ${TEST_SOURCES} ${SOURCES})
-target_link_libraries (tests ${Boost_LIBRARIES})
+add_executable (run_rs_tests ${TEST_SOURCES} ${SOURCES})
+target_link_libraries (run_rs_tests ${Boost_LIBRARIES})
