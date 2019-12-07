@@ -15,8 +15,8 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::idft(galois::GaloisFieldPolyno
     galois::GaloisFieldElement scale_factor(gf, ((rs_code->q_m - 1) % rs_code->q));
 
     // inverse fourier transform
-    for(int i=0; i < rs_code->q_m - 1; i++){
-        for(int j=0; j < rs_code->q_m - 1; j++){
+    for(unsigned int i=0; i < rs_code->q_m - 1; i++){
+        for(unsigned int j=0; j < rs_code->q_m - 1; j++){
             y[i] += x[j] * (alpha^(-j*i));
         }
         y[i] /= scale_factor;
@@ -31,13 +31,13 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_syndrome(galois::GaloisFi
     galois::GaloisFieldPolynomial helper_1(gf, r_x.deg());
     galois::GaloisFieldPolynomial helper_2;
 
-    for(int j=0; j < (r_x.deg()+1); j++){
+    for(unsigned j=0; j < (r_x.deg() + 1); j++){
         helper_1[j] = (alpha)^j;
     }
     
     helper_2 = helper_1;
 
-    for(int i=0; i < rs_code->tt; i++){
+    for(unsigned i=0; i < rs_code->tt; i++){
         syndrome[i] = dot_product(helper_2, r_x);
         helper_2 = vector_product(helper_2, helper_1);
     }
@@ -88,7 +88,7 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_lambda_vector(galois::Gal
     // final lambda_current needs to be used further
     // make last term 1 so E_vector[0] = 0 
     auto scale_factor = lambda_current[0].index();
-    for(int i=0; i < lambda_current.deg()+1; i++){
+    for(unsigned int i=0; i < lambda_current.deg() + 1; i++){
         lambda_current[i] *= (alpha)^(-scale_factor);
     }
 
@@ -101,13 +101,13 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_error_vector(galois::Galo
     galois::GaloisFieldPolynomial E_vector(gf, rs_code->q_m-2);
 
     // fill known error vectors in error vector (= syndrome)
-    for(int i=rs_code->m0; i < (rs_code->m0 + rs_code->tt); i++){
+    for(unsigned int i=rs_code->m0; i < (rs_code->m0 + rs_code->tt); i++){
         E_vector[i] = syndrome[i - rs_code->m0];
     }
 
     // calculate the remaining the lambda equation
-    for(int i=(rs_code->m0 + rs_code->tt); i < rs_code->q_m - 1; i++){
-        for(int j=0; j < lambda_vector.deg(); j++){
+    for(unsigned int i=(rs_code->m0 + rs_code->tt); i < rs_code->q_m - 1; i++){
+        for(unsigned int j=0; j < lambda_vector.deg(); j++){
             E_vector[i] += lambda_vector[j+1] * E_vector[i-j-1];
         }
     }
@@ -116,16 +116,15 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::calc_error_vector(galois::Galo
     // for reed solomon m0 = 1 so only E[0] remains to be found
     galois::GaloisFieldPolynomial helper(gf, lambda_vector.deg()-1);
     auto scale_factor = lambda_vector[lambda_vector.deg()].index();
-    for(int j=0; j < lambda_vector.deg(); j++){
+    for(unsigned int j=0; j < lambda_vector.deg(); j++){
         helper[j] = lambda_vector[j] / ((alpha)^scale_factor);
     }
 
-    for(int i=0; i < rs_code->m0; i++){
+    for(unsigned int i=0; i < rs_code->m0; i++){
         E_vector[i] = 0;
-        for(int j=0; j < helper.deg()+1; j++){
+        for(unsigned int j=0; j < helper.deg()+1; j++){
             E_vector[i] += helper[j] * E_vector[lambda_vector.deg() - j];
         }
-
     }
 
     return E_vector;
@@ -184,7 +183,7 @@ galois::GaloisFieldPolynomial ReedSolomonDecoder::string_to_poly(std::string mes
     
     galois::GaloisFieldPolynomial data(gf, rs_code->n);
 
-    for(int i = 0; i < rs_code->n; ++i){
+    for(unsigned int i = 0; i < rs_code->n; ++i){
         data[i] = message[i];
     }
 
@@ -196,7 +195,7 @@ std::string ReedSolomonDecoder::poly_to_string(galois::GaloisFieldPolynomial mes
     std::string data(rs_code->k, 0x0);
     message.set_degree(rs_code->n + 1);
 
-    for(int i = 0; i < rs_code->k; ++i){
+    for(unsigned int i = 0; i < rs_code->k; ++i){
         data[i] = message[rs_code->k - i - 1 + rs_code->tt].poly();
     }
 

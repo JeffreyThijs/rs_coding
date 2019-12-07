@@ -6,7 +6,7 @@ vector_product(galois::GaloisFieldPolynomial x,
 
     auto elements = std::min(x.deg(), y.deg()) + 1;
     galois::GaloisFieldPolynomial z(x.field(), elements-1);
-    for(auto i=0; i < elements; i++){
+    for(unsigned int i=0; i < elements; i++){
         z[i] = x[i] * y[i];
     }
 
@@ -19,7 +19,7 @@ dot_product(galois::GaloisFieldPolynomial x,
 
     auto elements = std::min(x.deg(), y.deg()) + 1;
     galois::GaloisFieldElement z(x.field(), 0);
-    for(auto i=0; i < elements; i++){
+    for(unsigned int i=0; i < elements; i++){
         z += (x[i] * y[i]);
     }
     return z;

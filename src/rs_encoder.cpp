@@ -42,7 +42,7 @@ galois::GaloisFieldPolynomial ReedSolomonEncoder::string_to_poly(std::string dat
     
     galois::GaloisFieldPolynomial message(gf, rs_code->n - 1);
 
-    for(int i = 0; i < rs_code->k; ++i){
+    for(unsigned int i = 0; i < rs_code->k; ++i){
         message[i] = data[rs_code->k - i - 1];
     }
     return message;
@@ -53,7 +53,7 @@ std::string ReedSolomonEncoder::poly_to_string(galois::GaloisFieldPolynomial mes
     std::string data(rs_code->n, 0x0);
     message.set_degree(rs_code->n + 1);
 
-    for(int i = 0; i < rs_code->n; ++i){
+    for(unsigned int i = 0; i < rs_code->n; ++i){
         data[i] = message[i].poly();
     }
 

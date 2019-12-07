@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(TestDEncoder){
 
         // introduce random number of bit errors
         auto n_errors = rand() % rs_code->t;
-        for(int i=0; i < n_errors; i++){
+        for(unsigned int i=0; i < n_errors; i++){
             encoded_message[rand() % rs_code->n] += 1;
         }
 
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(TestFileEncoder){
     auto runs = length / rs_code->k;
     std::string block(rs_code->k, 0x0);
 
-    for(int i=0; i < runs; i++){
+    for(unsigned int i=0; i < runs; i++){
         y.read(&block.front(), rs_code->k);
         received_message.append(block);
     }

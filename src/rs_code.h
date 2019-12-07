@@ -20,19 +20,22 @@ const unsigned int pp_power_2[ 3 ] = {1,1,1};
 const unsigned int pp_power_1[ 2 ] = {1,1};
 
 struct rs_code_t {
-    int m0 = 1; // always for reed solomun
-    int q = 2;
-    int n = 36; // degree: q - 1
-    int t = 6;  // t-error correcting code
-    int k = 24; // for rs k = 2 * t
-    int tt = 12;
-    int power = 8;
-    int q_m = 255;
+    unsigned int n = 36; // degree: q - 1
+    unsigned int t = 6;  // t-error correcting code
+    unsigned int q = 2;
+    unsigned int power = 8;
+    unsigned int tt = 12;
+    unsigned int k = 24; // for rs k = 2 * t
+    unsigned int q_m = 255;
+    unsigned int m0 = 1; // always for reed solomun
     const unsigned int * prime_poly = pp_power_8;
     std::shared_ptr<galois::GaloisField> gf;
     std::shared_ptr<galois::GaloisFieldElement> alpha;
     
-    rs_code_t(int n=36, int t=6, int power=8, int q=2)
+    rs_code_t(unsigned int n=36, 
+              unsigned int t=6, 
+              unsigned int power=8, 
+              unsigned int q=2)
     : n(n)
     , t(t)
     , q(q)
@@ -80,7 +83,7 @@ struct rs_code_t {
 
     galois::GaloisFieldPolynomial get_generator(){
 
-        auto size = this->tt;
+        unsigned int size = this->tt;
         galois::GaloisField * gf_ptr = this->gf.get(); 
         galois::GaloisFieldElement alpha = *this->alpha;
         galois::GaloisFieldPolynomial g_x(gf_ptr, size);
@@ -89,7 +92,7 @@ struct rs_code_t {
         galois::GaloisFieldElement alpha_vector[2] = { galois::GaloisFieldElement(gf_ptr, 1),
                                                        galois::GaloisFieldElement(gf_ptr, 1) };
 
-        for(auto i=0; i < size; ++i){
+        for(unsigned int i=0; i < size; ++i){
             alpha_vector[0] = alpha ^ (i+1);
             galois::GaloisFieldPolynomial alpha_polynomial(gf_ptr, 1, alpha_vector);
             g_x = g_x * alpha_polynomial;
