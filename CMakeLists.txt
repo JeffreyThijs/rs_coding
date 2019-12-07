@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 set (CMAKE_CXX_STANDARD 17)
 project(rs_coding)
 
-include_directories(src/
+find_package( Boost REQUIRED COMPONENTS program_options)
+
+include_directories(${Boost_INCLUDE_DIRS}
+                    src/
                     galois/)
 
 file(GLOB SOURCES 
@@ -14,3 +17,4 @@ file(GLOB SOURCES
      "galois/GaloisFieldPolynomial.cpp")
  
 add_executable(rs ${SOURCES})
+target_link_libraries( rs ${Boost_PROGRAM_OPTIONS_LIBRARY})
