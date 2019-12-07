@@ -1,34 +1,78 @@
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 #include <memory>
-#include <assert.h>
+#include <iostream>
+#include <fstream>
 #include "rs_encoder.h"
 #include "rs_decoder.h"
 
-int main(){
+BOOST_AUTO_TEST_CASE(TestDEncoder){
+
     std::shared_ptr<rs_code_t> rs_code(new rs_code_t());
     std::unique_ptr<ReedSolomonEncoder> encoder(new ReedSolomonEncoder(rs_code));
     std::unique_ptr<ReedSolomonDecoder> decoder(new ReedSolomonDecoder(rs_code));
-    std::string data = "abcdefghijklmnopqrstuvwx";
+    std::string original_message = "abcdefghijklmnopqrstuvwx";
     std::string decoded_message = "";
-    std::string enc_data;
+    std::string encoded_message;
 
-    std::cout << "original message = " << data << std::endl;
-    encoder->encode(data, enc_data);
+    for(int i=0; i < 100; i++){
 
-    // introduce some errors
-    enc_data[35] += 1;
-    enc_data[33] += 1;
-    enc_data[7] += 1;
-    enc_data[2] += 1;
-    std::cout << "enc_data = " << enc_data << std::endl;
+        encoder->encode(original_message, encoded_message);
 
-    decoder->decode(enc_data, decoded_message);
-    std::cout << "decoded_message: " << decoded_message << std::endl;
+        // introduce random number of bit errors
+        auto n_errors = rand() % rs_code->t;
+        for(int i=0; i < n_errors; i++){
+            encoded_message[rand() % rs_code->n] += 1;
+        }
 
-    // assert(decoded_message == decoded_message);
+        decoder->decode(encoded_message, decoded_message);
+        BOOST_CHECK_EQUAL(original_message, decoded_message);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TestFileEncoder){
+
+    std::shared_ptr<rs_code_t> rs_code(new rs_code_t());
+    std::unique_ptr<ReedSolomonEncoder> encoder(new ReedSolomonEncoder(rs_code));
+    std::unique_ptr<ReedSolomonDecoder> decoder(new ReedSolomonDecoder(rs_code));
+
+    std::string input_file = "input.raw";
+    std::string output_file = "output.raw";
+    std::string encoded_file = "data.enc";
+    std::string original_message = "";
+    std::string received_message = "";
+    int blocks = 100;
+
+    // write to file
+    std::ofstream x(input_file, std::ifstream::binary);
+    for(auto i=0; i < blocks; i++){
+        std::string block(rs_code->k, 0x32 + rand() % 26);
+        x << block;
+        original_message.append(block);
+    }
+    x.close();
 
     // file encoding/decoding
-    // encoder->encode_file("test.ldf", "weee.ldf");
-    // decoder->decode_file("weee.ldf", "wooo.ldf");
+    encoder->encode_file(input_file, encoded_file);
+    decoder->decode_file(encoded_file, output_file);
 
-    return 0;
+    // read from file
+    std::ifstream y(output_file, std::ifstream::binary);
+    y.seekg(0, y.end);
+    int length = y.tellg();
+    y.seekg(0, y.beg);
+
+    // assert file length is a multiple of the block lengt to ensure correct decoding
+    BOOST_CHECK_EQUAL(length % rs_code->k, 0);
+
+    auto runs = length / rs_code->k;
+    std::string block(rs_code->k, 0x0);
+
+    for(int i=0; i < runs; i++){
+        y.read(&block.front(), rs_code->k);
+        received_message.append(block);
+    }
+    y.close();
+
+    BOOST_CHECK_EQUAL(original_message, received_message);
 }
