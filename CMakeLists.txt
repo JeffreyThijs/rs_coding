@@ -7,14 +7,12 @@ set (CMAKE_CXX_FLAGS "-Wall -pedantic -ansi")
 find_package( Boost REQUIRED COMPONENTS program_options unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS}
                     src/
-                    galois/)
+                    galois/src/)
 
 file(GLOB SOURCES 
      "src/rs_*.cpp"
      "src/helper_*.cpp"
-     "galois/GaloisField.cpp"
-     "galois/GaloisFieldElement.cpp"
-     "galois/GaloisFieldPolynomial.cpp")
+     "galois/src/*.cpp")
  
 add_executable(rs "src/main.cpp" ${SOURCES})
 target_link_libraries(rs ${Boost_PROGRAM_OPTIONS_LIBRARY})
