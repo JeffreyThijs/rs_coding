@@ -3,11 +3,6 @@ set (CMAKE_CXX_STANDARD 17)
 project(rs_coding)
 
 find_package( Boost REQUIRED COMPONENTS program_options unit_test_framework)
-
-
-
-include_directories (${Boost_INCLUDE_DIRS})
-
 include_directories(${Boost_INCLUDE_DIRS}
                     src/
                     galois/)
@@ -20,7 +15,7 @@ file(GLOB SOURCES
      "galois/GaloisFieldPolynomial.cpp")
  
 add_executable(rs "src/main.cpp" ${SOURCES})
-target_link_libraries( rs ${Boost_PROGRAM_OPTIONS_LIBRARY})
+target_link_libraries(rs ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 # tests
 file(GLOB TEST_SOURCES
