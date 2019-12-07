@@ -1,7 +1,23 @@
 #pragma once
 
-const unsigned int pp_power_8[9] = {1,0,1,1,1,0,0,0,1};
-const unsigned int pp_power_4[5] = {1,1,0,0,1};
+#include <assert.h>
+
+const unsigned int pp_power_16[17] = {1,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1};
+const unsigned int pp_power_15[16] = {1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1};
+const unsigned int pp_power_14[15] = {1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
+const unsigned int pp_power_13[14] = {1,1,0,1,1,0,0,0,0,0,0,0,0,1};
+const unsigned int pp_power_12[13] = {1,1,0,0,1,0,1,0,0,0,0,0,1};
+const unsigned int pp_power_11[12] = {1,0,1,0,0,0,0,0,0,0,0,1};
+const unsigned int pp_power_10[11] = {1,0,0,1,0,0,0,0,0,0,1};
+const unsigned int pp_power_9[ 10] = {1,0,0,0,1,0,0,0,0,1};
+const unsigned int pp_power_8[ 9 ] = {1,0,1,1,1,0,0,0,1};
+const unsigned int pp_power_7[ 8 ] = {1,0,0,1,0,0,0,1};
+const unsigned int pp_power_6[ 7 ] = {1,1,0,0,0,0,1};
+const unsigned int pp_power_5[ 6 ] = {1,0,1,0,0,1};
+const unsigned int pp_power_4[ 5 ] = {1,1,0,0,1};
+const unsigned int pp_power_3[ 4 ] = {1,1,0,1};
+const unsigned int pp_power_2[ 3 ] = {1,1,1};
+const unsigned int pp_power_1[ 2 ] = {1,1};
 
 struct rs_code_t {
     int m0 = 1; // always for reed solomun
@@ -29,17 +45,37 @@ struct rs_code_t {
         this->gf = std::make_shared<galois::GaloisField>(this->power, 
                                                          this->prime_poly);
         this->alpha = std::make_shared<galois::GaloisFieldElement>(this->gf.get(), this->q);
+
+        // some safety checks
+        assert(tt > 0);
+        assert(k > 0);
+        assert(q_m > 0);
+        assert(n > 0);
+        assert(power > 0);
+        assert(q > 0);
     }
 
     const unsigned int * get_default_prime_poly(int choice){
         switch(choice){
-            case 8:
-                return pp_power_8;
-            case 4:
-                return pp_power_4;
-            default:
-                return nullptr;
+            case 16: return pp_power_16;
+            case 15: return pp_power_15;
+            case 14: return pp_power_14;
+            case 13: return pp_power_13;
+            case 12: return pp_power_12;
+            case 11: return pp_power_11;
+            case 10: return pp_power_10;
+            case  9: return pp_power_9;
+            case  8: return pp_power_8;
+            case  7: return pp_power_7;
+            case  6: return pp_power_6;
+            case  5: return pp_power_5;
+            case  4: return pp_power_4;
+            case  3: return pp_power_3;
+            case  2: return pp_power_2;
+            case  1: return pp_power_1;
+            default: return nullptr;
         }
+
     }
 
     galois::GaloisFieldPolynomial get_generator(){
