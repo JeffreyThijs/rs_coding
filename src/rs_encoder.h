@@ -20,7 +20,7 @@ class ReedSolomonEncoder {
         void encode(std::string data, galois::GaloisFieldPolynomial& enc_data);
         void encode_file(std::string src, std::string dst);
     private:
-        int read_from_file(std::string src, std::vector<std::string>& blocks);
+        unsigned int read_from_file(std::string src, std::vector<std::string>& blocks);
         void write_to_file(std::string dst, std::string blocks);
         galois::GaloisFieldPolynomial _encode(std::string data);
         galois::GaloisFieldPolynomial string_to_poly(std::string data);

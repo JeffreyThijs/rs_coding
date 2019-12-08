@@ -76,3 +76,48 @@ BOOST_AUTO_TEST_CASE(TestFileEncoder){
 
     BOOST_CHECK_EQUAL(original_message, received_message);
 }
+
+BOOST_AUTO_TEST_CASE(test_non_div_block_size){
+
+    std::shared_ptr<rs_code_t> rs_code(new rs_code_t());
+    std::unique_ptr<ReedSolomonEncoder> encoder(new ReedSolomonEncoder(rs_code));
+    std::unique_ptr<ReedSolomonDecoder> decoder(new ReedSolomonDecoder(rs_code));
+
+    std::string input_file = "input.raw";
+    std::string output_file = "output.raw";
+    std::string encoded_file = "data.enc";
+    std::string original_message = "";
+    std::string received_message = "";
+    int blocks = 100;
+
+    // write to file
+    std::ofstream x(input_file, std::ifstream::binary);
+    for(auto i=0; i < blocks; i++){
+        std::string block(rs_code->k, 0x32 + rand() % 26);
+        x << block;
+        original_message.append(block);
+    }
+
+    // add random block size at the end
+    std::string _block(rand() % rs_code->k, 0x32 + rand() % 26);
+    x << _block;
+    original_message.append(_block);
+    x.close();
+
+    // file encoding/decoding
+    encoder->encode_file(input_file, encoded_file);
+    decoder->decode_file(encoded_file, output_file);
+
+    // read from file
+    std::ifstream y(output_file, std::ifstream::binary);
+    y.seekg(0, y.end);
+    int length = y.tellg();
+    y.seekg(0, y.beg);
+
+    std::string block(length, 0x0);
+    y.read(&block.front(), length);
+    received_message.append(block);
+    y.close();
+
+    BOOST_CHECK_EQUAL(original_message, received_message);
+}

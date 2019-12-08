@@ -60,21 +60,31 @@ std::string ReedSolomonEncoder::poly_to_string(galois::GaloisFieldPolynomial mes
     return data;
 }
 
-int ReedSolomonEncoder::read_from_file(std::string src, std::vector<std::string>& blocks){
+unsigned int ReedSolomonEncoder::read_from_file(std::string src, std::vector<std::string>& blocks){
 
-    int runs = 0;
+    unsigned int runs = 0;
+
 
     std::ifstream src_file(src, std::ifstream::binary);
     if (src_file) {
         src_file.seekg(0, src_file.end);
-        int length = src_file.tellg();
+        unsigned int length = src_file.tellg();
         src_file.seekg(0, src_file.beg);
 
         runs = static_cast<int>(ceil(static_cast<float>(length) / static_cast<float>(rs_code->k)));
+        unsigned int last_block_empty_size = rs_code->k - (length % rs_code->k);
         std::string block(rs_code->k, 0x0);
     
-        for(int i=0; i < runs; i++){
+        for(unsigned int i=0; i < runs; i++){
             src_file.read(&block.front(), rs_code->k);
+
+            if((i+1 == runs) && (last_block_empty_size > 0) && (last_block_empty_size < rs_code->k)){
+                // smart filling the last block
+                for(unsigned j=0; j < last_block_empty_size; j++){
+                    block[length % rs_code->k + j] = 255 - j;
+                }
+            }
+
             blocks.push_back(block);
             block.clear();
             block.resize(rs_code->k);

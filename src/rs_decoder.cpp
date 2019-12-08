@@ -236,6 +236,13 @@ int ReedSolomonDecoder::read_from_file(std::string src, std::vector<std::string>
 
 void ReedSolomonDecoder::write_to_file(std::string dst, std::string blocks){
     std::ofstream dst_file(dst, std::ifstream::binary);
+
+    // smart removal of unwanted data
+    if( blocks[blocks.size() - 1] < 0){
+        if(blocks[blocks.size() + blocks[blocks.size() - 1]] == -1){
+            blocks.resize(blocks.size() + blocks[blocks.size() - 1]);
+        }
+    }
     dst_file << blocks;
     dst_file.close();
 }
